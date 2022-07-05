@@ -57,30 +57,27 @@ export default {
                     .post('/create', {
                         title: this.ruleForm.title,
                         content: this.ruleForm.content
-                    },
-                    {
-                        headers
                     })
                     .then(res => {
                         if(res.status === 200 || res.data === 'success') {
-                            setTimeout(() => {
-                                this.messages('등록이 완료되었습니다!', 'success');
-                                this.$router.push('/list');
-                                this.$parent.loading = false;
-                            }, 3000);
-                        } else {
-
+                            this.messages('등록이 완료되었습니다!', 'success');
+                            this.$router.push('/list');
+                            /* this.$parent.loading = false; */
                         }
                     })
                     .catch(err => {
-                        setTimeout(() => {
-                            this.messages('오류가 발생하였습니다!.', 'error');
-                            this.$parent.loading = false;
-                        }, 3000);
+                        const errors = err.response.data.errors;
+                        for(const msg of Object.values(errors)) {
+                            if(msg != undefined) {
+                                msg.forEach(m => {
+                                    setTimeout(() => {
+                                        this.messages(m, 'error');
+                                    }, 500);
+                                });
+                            }
+                        }
 
-                    })
-                    .finally(() => {
-
+                        this.$parent.loading = false;
                     })
                 } else {
                     return false;

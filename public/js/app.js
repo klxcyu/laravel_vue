@@ -3882,20 +3882,29 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     var requests = {
-      names: '김지환'
+      name: '김지환'
     };
-    console.log(document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
     var headers = {
       'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
     };
-    axios__WEBPACK_IMPORTED_MODULE_0___default().post("http://127.0.0.1:8000/test", requests, {
-      headers: headers
-    }).then(function (res) {
-      console.log("res ".concat(res));
+    axios__WEBPACK_IMPORTED_MODULE_0___default().post("http://127.0.0.1:8000/test", requests).then(function (res) {
+      console.log("res ".concat(res.data));
     })["catch"](function (err) {
-      var msg = err.response.data.errors;
-      msg = msg.name[0];
-      /*   this.open(msg); */
+      var errors = err.response.data.errors;
+
+      for (var _i = 0, _Object$values = Object.values(errors); _i < _Object$values.length; _i++) {
+        var msg = _Object$values[_i];
+
+        if (msg != undefined) {
+          msg.forEach(function (m) {
+            setTimeout(function () {
+              _this.messages(m, 'error');
+            }, 500);
+          });
+        }
+      }
+
+      _this.$parent.loading = false;
     })["finally"](function () {
       _this.$parent.loading = false;
     });
@@ -3906,6 +3915,12 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     open: function open(msg) {
       this.$message.error(msg);
+    },
+    messages: function messages(msg, type) {
+      this.$message({
+        message: msg,
+        type: type
+      });
     }
   }
 });
@@ -4033,25 +4048,31 @@ __webpack_require__.r(__webpack_exports__);
           axios__WEBPACK_IMPORTED_MODULE_0___default().post('/create', {
             title: _this.ruleForm.title,
             content: _this.ruleForm.content
-          }, {
-            headers: headers
           }).then(function (res) {
             if (res.status === 200 || res.data === 'success') {
-              setTimeout(function () {
-                _this.messages('등록이 완료되었습니다!', 'success');
+              _this.messages('등록이 완료되었습니다!', 'success');
 
-                _this.$router.push('/list');
+              _this.$router.push('/list');
+              /* this.$parent.loading = false; */
 
-                _this.$parent.loading = false;
-              }, 3000);
-            } else {}
+            }
           })["catch"](function (err) {
-            setTimeout(function () {
-              _this.messages('오류가 발생하였습니다!.', 'error');
+            var errors = err.response.data.errors;
 
-              _this.$parent.loading = false;
-            }, 3000);
-          })["finally"](function () {});
+            for (var _i = 0, _Object$values = Object.values(errors); _i < _Object$values.length; _i++) {
+              var msg = _Object$values[_i];
+
+              if (msg != undefined) {
+                msg.forEach(function (m) {
+                  setTimeout(function () {
+                    _this.messages(m, 'error');
+                  }, 500);
+                });
+              }
+            }
+
+            _this.$parent.loading = false;
+          });
         } else {
           return false;
         }

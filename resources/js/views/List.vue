@@ -30,24 +30,31 @@ export default {
     },
     created() {
         const requests = {
-            names : '김지환'
+            name : '김지환'
         }
-
-        console.log(document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
 
         const headers = {
             'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
 
         axios
-        .post("http://127.0.0.1:8000/test", requests, { headers : headers })
+        .post("http://127.0.0.1:8000/test", requests)
         .then(( res ) => {
-            console.log(`res ${res}`);
+            console.log(`res ${res.data}`);
         })
         .catch(err => {
-            let msg = err.response.data.errors;
-            msg = msg.name[0];
-          /*   this.open(msg); */
+            const errors = err.response.data.errors;
+            for(const msg of Object.values(errors)) {
+                if(msg != undefined) {
+                    msg.forEach(m => {
+                        setTimeout(() => {
+                            this.messages(m, 'error');
+                        }, 500);
+                    });
+                }
+            }
+
+            this.$parent.loading = false;
         })
         .finally(() => {
             this.$parent.loading = false;
@@ -60,7 +67,14 @@ export default {
         open(msg) {
             this.$message.error(msg);
         },
-    }
+        messages(msg, type) {
+            this.$message({
+                message: msg,
+                type: type
+            });
+        },
+    },
+
 
 }
 </script>

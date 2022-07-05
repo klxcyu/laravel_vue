@@ -49,11 +49,17 @@ Route::post('/test', function() {
 
 Route::post('create', function() {
     request()->validate([
-        'title' => ['required'],
+        'title' => ['required',/*  'email', 'min:15' */],
         'content' => ['required'],
     ],
     [
-        'required' => '필수사항 누락'
+        'email' => '이메일 형식이 아님',
+        'required' => ':attribute는 필수항목 입니다!',
+        'min' => '글자수 누락',
+    ],
+    [
+        'titles' => '타이틀',
+        'contents' => '본문내용'
     ]);
 
     return response()->json('success', 200);
